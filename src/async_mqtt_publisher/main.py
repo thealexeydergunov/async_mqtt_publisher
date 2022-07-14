@@ -24,22 +24,21 @@ class MQTTPublisher:
             mqtt_login=os.getenv('MQTT_LOGIN', 'admin'),
             mqtt_password=os.getenv('MQTT_PASSWORD', 'public'),
             mqtt_host=os.getenv('MQTT_HOST'),
+            count_high=int(os.getenv('MQTT_COUNT_HIGH', 5)) or 1,
+            count_middle=int(os.getenv('MQTT_COUNT_MIDDLE', 4)) or 1,
+            count_low=int(os.getenv('MQTT_COUNT_LOW', 3)) or 1,
         )
         self.queues = Queues(
             high=asyncio.Queue(),
             middle=asyncio.Queue(),
             low=asyncio.Queue(),
         )
-        asyncio.create_task(self.__task(priority=Priorities.high))
-        asyncio.create_task(self.__task(priority=Priorities.high))
-        asyncio.create_task(self.__task(priority=Priorities.high))
-        asyncio.create_task(self.__task(priority=Priorities.high))
-        asyncio.create_task(self.__task(priority=Priorities.middle))
-        asyncio.create_task(self.__task(priority=Priorities.middle))
-        asyncio.create_task(self.__task(priority=Priorities.middle))
-        asyncio.create_task(self.__task(priority=Priorities.low))
-        asyncio.create_task(self.__task(priority=Priorities.low))
-        asyncio.create_task(self.__task(priority=Priorities.low))
+        for _ in range(self.settings.count_high):
+            asyncio.create_task(self.__task(priority=Priorities.high))
+        for _ in range(self.settings.count_middle):
+            asyncio.create_task(self.__task(priority=Priorities.middle))
+        for _ in range(self.settings.count_low):
+            asyncio.create_task(self.__task(priority=Priorities.low))
 
     async def __publish(self, payload: str, qos: int = 0, topic: Optional[str] = None, topics: Optional[list] = None,
                         retain: bool = False) -> Tuple[dict, int]:

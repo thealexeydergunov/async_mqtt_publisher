@@ -12,6 +12,10 @@ class Settings:
     mqtt_login: str
     mqtt_password: str
     mqtt_host: str
+    count_high: int
+    count_middle: int
+    count_low: int
+
 
     @property
     def mqtt_auth(self) -> aiohttp.BasicAuth:

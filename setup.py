@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 setup(
     name='async_mqtt_publisher',
     description='MQTT publisher based on aiohttp',
-    version='0.0.2',
+    version='0.0.3',
     license='MIT',
     author="Alexey Dergunov",
     author_email='dergunovalexey2000@gmail.com',
