@@ -9,7 +9,7 @@ setup(
     author_email='dergunovalexey2000@gmail.com',
     packages=find_packages('async_mqtt_publisher'),
     package_dir={'': 'async_mqtt_publisher'},
-    url='https://github.com/gmyrianthous/example-publish-pypi',
+    url='https://github.com/thealexeydergunov/async_mqtt_publisher.git',
     keywords='MQTT publisher based on aiohttp',
     install_requires=[
         'aiohttp',
