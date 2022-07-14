@@ -1,2 +1,1 @@
-async def publish():
-    return 'Success publish'
+from .main import MQTTPublisher
