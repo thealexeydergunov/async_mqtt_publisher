@@ -39,6 +39,7 @@ class MQTTPublisher:
             asyncio.create_task(self.__task(priority=Priorities.middle))
         for _ in range(self.settings.count_low):
             asyncio.create_task(self.__task(priority=Priorities.low))
+        self.kwgs = {'ssl': False} if aiohttp.__version__ >= '3.8.0' else {'verify_ssl': False}
 
     async def __publish(self, payload: str, qos: int = 0, topic: Optional[str] = None, topics: Optional[list] = None,
                         retain: bool = False) -> Tuple[dict, int]:
@@ -54,8 +55,9 @@ class MQTTPublisher:
             data['topics'] = ','.join(topics)
 
         out = {}
-        async with self.aio_session.post(f'http://{self.settings.mqtt_host}:8081/api/v4/mqtt/publish', verify_ssl=False,
-                                         auth=self.settings.mqtt_auth, json=data) as resp:
+        async with self.aio_session.post(
+                f'http://{self.settings.mqtt_host}:8081/api/v4/mqtt/publish', auth=self.settings.mqtt_auth, json=data,
+                **self.kwgs) as resp:
             if resp.status == 200:
                 out = await resp.json()
 
@@ -87,3 +89,12 @@ class MQTTPublisher:
     async def publish_low(
             self, payload: str, qos: int = 0, topic: Optional[str] = None, topics: Optional[list] = None):
         await self.queues.low.put(MQTTPublisherData(topic=topic, topics=topics, payload=payload, qos=qos))
+
+    async def publish_force(
+            self, payload: str, qos: int = 0, topic: Optional[str] = None, topics: Optional[list] = None):
+        try:
+            resp, status = await self.__publish(payload=payload, qos=qos, topic=topic, topics=topics)
+        except ServerConnectionError as e:
+            logger.exception(e)
+            resp, status = {}, None
+        return resp, status
