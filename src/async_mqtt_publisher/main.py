@@ -18,8 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 class MQTTPublisher:
-    def __init__(self, aio_session: aiohttp.ClientSession):
-        self.aio_session = aio_session
+    def __init__(self):
         self.settings = Settings(
             mqtt_login=os.getenv('MQTT_LOGIN', 'admin'),
             mqtt_password=os.getenv('MQTT_PASSWORD', 'public'),
@@ -55,11 +54,15 @@ class MQTTPublisher:
             data['topics'] = ','.join(topics)
 
         out = {}
-        async with self.aio_session.post(
-                f'http://{self.settings.mqtt_host}:8081/api/v4/mqtt/publish', auth=self.settings.mqtt_auth, json=data,
-                **self.kwgs) as resp:
-            if resp.status == 200:
-                out = await resp.json()
+
+        async with aiohttp.ClientSession() as aio_session:
+            async with aio_session.post(
+                    f'http://{self.settings.mqtt_host}:8081/api/v4/mqtt/publish', auth=self.settings.mqtt_auth,
+                    json=data, **self.kwgs) as resp:
+                if resp.status == 200:
+                    out = await resp.json()
+                else:
+                    await self.publish_force(payload=payload, qos=qos, topic=topic, topics=topics)
 
         return out, resp.status
 
