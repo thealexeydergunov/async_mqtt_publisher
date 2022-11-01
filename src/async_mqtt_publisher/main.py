@@ -63,7 +63,8 @@ class MQTTPublisher:
                 json=data, **self.kwgs) as resp:
             if resp.status == 200:
                 out = await resp.json()
-            # else:
+            else:
+                print(f'MQTT PUBLISHER GET INCORRECT RESPONSE: {resp.status}')
                 # await self.publish_force(payload=payload, qos=qos, topic=topic, topics=topics)
 
         return out, resp.status
