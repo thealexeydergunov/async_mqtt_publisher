@@ -63,8 +63,7 @@ class MQTTPublisher:
                 json=data, **self.kwgs) as resp:
             if resp.status == 200:
                 out = await resp.json()
-            else:
-                print(resp.status)
+            # else:
                 # await self.publish_force(payload=payload, qos=qos, topic=topic, topics=topics)
 
         return out, resp.status
